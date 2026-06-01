@@ -1,0 +1,174 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Open+Sans:wght@400;600&family=Roboto+Mono&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    font-family: 'Open Sans', sans-serif;
+    @apply transition-colors duration-300;
+  }
+
+  /* Dark mode styles */
+  .dark body {
+    @apply bg-gradient-to-br from-[#1a1a1a] to-[#2c2c2c];
+  }
+
+  /* Dark mode for common elements */
+  .dark .bg-white {
+    @apply bg-[#2c2c2c] !important;
+  }
+
+  .dark .text-\[\#1a1a1a\],
+  .dark .text-\[\#333\],
+  .dark .text-\[\#2c2c2c\] {
+    @apply text-white !important;
+  }
+
+  .dark .text-\[\#666\],
+  .dark .text-\[\#555\] {
+    @apply text-gray-300 !important;
+  }
+
+  .dark .text-\[\#95a5a6\],
+  .dark .text-\[\#7f8c8d\] {
+    @apply text-gray-400 !important;
+  }
+
+  /* Dark mode for opacity text colors */
+  .dark .text-black\/70,
+  .dark .text-black\/60,
+  .dark .text-black\/50 {
+    @apply text-white/70 !important;
+  }
+
+  /* Dark mode for default text color */
+  .dark {
+    color: #e5e7eb;
+  }
+
+  /* Ensure all text elements are visible in dark mode */
+  .dark p,
+  .dark span,
+  .dark div:not([class*="bg-"]) {
+    color: inherit;
+  }
+
+  /* Dark mode for font-mono elements */
+  .dark .font-mono {
+    @apply text-white;
+  }
+
+  /* Dark mode for Chart.js */
+  .dark canvas {
+    filter: brightness(1.2);
+  }
+
+  .dark .border-\[\#dcdcdc\] {
+    @apply border-gray-700 !important;
+  }
+
+  .dark .bg-\[\#f5f5f5\] {
+    @apply bg-[#1a1a1a] !important;
+  }
+
+  .dark .bg-\[\#fff5f5\] {
+    @apply bg-[#2c2c2c] !important;
+  }
+
+  .dark .shadow-\[0_4px_12px_rgba\(0\,0\,0\,0\.05\)\] {
+    @apply shadow-[0_4px_12px_rgba(0,0,0,0.3)] !important;
+  }
+
+  .dark input,
+  .dark select,
+  .dark textarea {
+    @apply bg-[#1a1a1a] text-white border-gray-700 !important;
+  }
+
+  .dark input::placeholder,
+  .dark select::placeholder,
+  .dark textarea::placeholder {
+    @apply text-gray-500 !important;
+  }
+
+  .dark table tbody tr:hover {
+    @apply bg-[#1a1a1a] !important;
+  }
+
+  .dark table thead tr {
+    @apply border-gray-700 !important;
+  }
+
+  .dark table tbody tr {
+    @apply border-gray-700 !important;
+  }
+
+  /* Dark mode for cards */
+  .dark [class*="rounded-lg"] {
+    @apply shadow-[0_4px_12px_rgba(0,0,0,0.3)];
+  }
+
+  /* Dark mode for modals */
+  .dark .bg-black\/30 {
+    @apply bg-black/60 !important;
+  }
+
+  .dark .bg-black\/50 {
+    @apply bg-black/70 !important;
+  }
+
+  /* Dark mode for buttons */
+  .dark .bg-\[\#95a5a6\] {
+    @apply bg-gray-600 !important;
+  }
+
+  .dark .hover\:bg-\[\#7f8c8d\]:hover {
+    @apply hover:bg-gray-700 !important;
+  }
+
+  /* Dark mode for specific backgrounds */
+  .dark .bg-\[\#95a5a6\]\/10 {
+    @apply bg-gray-600/20 !important;
+  }
+
+  .dark .bg-\[\#1a1a1a\]\/10 {
+    @apply bg-white/10 !important;
+  }
+}
+
+@layer utilities {
+  .font-montserrat {
+    font-family: 'Montserrat', sans-serif;
+  }
+  
+  .bg-pattern {
+    background-image: 
+      radial-gradient(circle at 10% 20%, rgba(231, 76, 60, 0.05) 0%, transparent 20%),
+      radial-gradient(circle at 90% 80%, rgba(0, 116, 217, 0.05) 0%, transparent 20%),
+      radial-gradient(circle at 50% 50%, rgba(61, 153, 112, 0.05) 0%, transparent 30%);
+  }
+
+  .bg-pattern-light {
+    background-image: 
+      radial-gradient(circle at 10% 20%, rgba(231, 76, 60, 0.03) 0%, transparent 20%),
+      radial-gradient(circle at 90% 80%, rgba(0, 116, 217, 0.03) 0%, transparent 20%),
+      radial-gradient(circle at 50% 50%, rgba(61, 153, 112, 0.03) 0%, transparent 30%);
+  }
+  
+  .animate-fadeIn {
+    animation: fadeIn 0.8s ease-out;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}

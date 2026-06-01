@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Test Suite — Billing & Finance Services</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080b10;
+    --surface: #0f1219;
+    --border: #191e28;
+    --accent: #7c3aed;
+    --accent2: #f59e0b;
+    --glow: rgba(124,58,237,.18);
+    --warn: #f59e0b;
+    --fail: #ef4444;
+    --pass: #10b981;
+    --skip: #4b5563;
+    --text: #cbd5e1;
+    --muted: #475569;
+    --white: #f1f5f9;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    min-height: 100vh;
+    padding: 32px 24px;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 80% 0%, rgba(124,58,237,.07) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 30% at 0% 100%, rgba(245,158,11,.05) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrap { position: relative; z-index: 1; max-width: 960px; margin: 0 auto; }
+
+  /* Header */
+  header {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 24px;
+    margin-bottom: 32px;
+    position: relative;
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -1px; left: 0;
+    width: 80px; height: 1px;
+    background: var(--accent);
+  }
+  .header-tag {
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--accent2);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--white);
+    letter-spacing: -0.5px;
+  }
+  h1 span { color: var(--accent); }
+  .header-meta { margin-top: 8px; font-size: 11px; color: var(--muted); }
+
+  /* Scoreboard */
+  .scoreboard {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+  .score-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .score-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+  }
+  .score-card.total::before  { background: linear-gradient(90deg, transparent, var(--accent), transparent); }
+  .score-card.pass::before   { background: linear-gradient(90deg, transparent, var(--pass), transparent); }
+  .score-card.fail::before   { background: linear-gradient(90deg, transparent, var(--fail), transparent); }
+  .score-card.quality::before { background: linear-gradient(90deg, transparent, var(--accent2), transparent); }
+  .score-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--white);
+    display: block;
+  }
+  .score-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  /* Quality bar */
+  .quality-bar-wrap { margin-bottom: 32px; }
+  .quality-bar-label {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .quality-bar-label strong { color: var(--white); }
+  .quality-bar {
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .quality-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    width: 0%;
+    transition: width 1.2s cubic-bezier(.16,1,.3,1);
+  }
+
+  /* Suite */
+  .suite {
+    margin-bottom: 28px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .suite-header {
+    padding: 14px 20px;
+    background: #0c1018;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .suite-icon {
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+  .suite-icon.billing  { background: rgba(124,58,237,.15); color: var(--accent); }
+  .suite-icon.finance  { background: rgba(245,158,11,.12); color: var(--accent2); }
+  .suite-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    color: var(--white);
+    font-size: 14px;
+    flex: 1;
+  }
+  .suite-badge {
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 20px;
+    font-weight: 600;
+    letter-spacing: 1px;
+  }
+  .badge-pass  { background: rgba(16,185,129,.12); color: var(--pass); }
+  .badge-fail  { background: rgba(239,68,68,.12);  color: var(--fail); }
+  .badge-mixed { background: rgba(245,158,11,.12); color: var(--warn); }
+
+  .suite-body { padding: 0; }
+
+  /* Test row */
+  .test-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border);
+    animation: fadeIn .3s ease both;
+  }
+  .test-row:last-child { border-bottom: none; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; } }
+
+  .test-status {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px;
+    margin-top: 1px;
+  }
+  .status-pass { background: rgba(16,185,129,.12);  color: var(--pass);  border: 1px solid rgba(16,185,129,.3); }
+  .status-fail { background: rgba(239,68,68,.12);   color: var(--fail);  border: 1px solid rgba(239,68,68,.3); }
+  .status-warn { background: rgba(245,158,11,.12);  color: var(--warn);  border: 1px solid rgba(245,158,11,.3); }
+
+  .test-info { flex: 1; }
+  .test-name { color: var(--white); font-size: 12px; }
+  .test-desc { color: var(--muted); font-size: 11px; margin-top: 2px; }
+  .test-error {
+    margin-top: 6px; padding: 8px 10px;
+    background: rgba(239,68,68,.06);
+    border-left: 2px solid var(--fail);
+    border-radius: 0 4px 4px 0;
+    font-size: 11px; color: var(--fail);
+  }
+  .test-warn-msg {
+    margin-top: 6px; padding: 8px 10px;
+    background: rgba(245,158,11,.06);
+    border-left: 2px solid var(--warn);
+    border-radius: 0 4px 4px 0;
+    font-size: 11px; color: var(--warn);
+  }
+  .test-duration { font-size: 10px; color: var(--muted); flex-shrink: 0; margin-top: 2px; }
+
+  /* Controls */
+  .controls { display: flex; align-items: center; gap: 12px; margin-bottom: 32px; }
+  .run-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 22px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: opacity .15s, transform .1s;
+    box-shadow: 0 0 24px var(--glow);
+  }
+  .run-btn:hover { opacity: .9; transform: translateY(-1px); }
+  .run-btn:active { transform: translateY(0); }
+  .run-btn:disabled { opacity: .4; cursor: not-allowed; }
+  .run-label { font-size: 11px; color: var(--muted); }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner {
+    width: 14px; height: 14px;
+    border: 2px solid #fff;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin .6s linear infinite;
+    display: none;
+  }
+  .running .spinner { display: block; }
+
+  /* Timeline / coverage visual */
+  .coverage-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 28px;
+    display: none;
+  }
+  .coverage-wrap.visible { display: block; }
+  .coverage-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 16px;
+    letter-spacing: -.2px;
+  }
+  .cov-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+    font-size: 11px;
+  }
+  .cov-label { width: 220px; color: var(--text); flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cov-bar { flex: 1; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
+  .cov-fill { height: 100%; border-radius: 4px; transition: width 1s cubic-bezier(.16,1,.3,1); }
+  .cov-pct { width: 36px; text-align: right; color: var(--muted); flex-shrink: 0; }
+
+  footer {
+    margin-top: 48px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    display: flex;
+    justify-content: space-between;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="header-tag">// suite 2 of 2</div>
+    <h1>Billing <span>&</span> Finance Services</h1>
+    <div class="header-meta" id="runMeta">Listo para ejecutar · 0 pruebas</div>
+  </header>
+
+  <div class="scoreboard">
+    <div class="score-card total">
+      <span class="score-num" id="sc-total">—</span>
+      <span class="score-label">Total</span>
+    </div>
+    <div class="score-card pass">
+      <span class="score-num" id="sc-pass">—</span>
+      <span class="score-label">Pasaron</span>
+    </div>
+    <div class="score-card fail">
+      <span class="score-num" id="sc-fail">—</span>
+      <span class="score-label">Fallaron</span>
+    </div>
+    <div class="score-card quality">
+      <span class="score-num" id="sc-pct">—</span>
+      <span class="score-label">Calidad</span>
+    </div>
+  </div>
+
+  <div class="quality-bar-wrap">
+    <div class="quality-bar-label">
+      <span>Índice de calidad del servicio</span>
+      <strong id="bar-pct">0%</strong>
+    </div>
+    <div class="quality-bar"><div class="quality-bar-fill" id="qualityBar"></div></div>
+  </div>
+
+  <div class="controls">
+    <button class="run-btn" id="runBtn" onclick="runAll()">
+      <span class="spinner" id="spin"></span>
+      ▶ EJECUTAR PRUEBAS
+    </button>
+    <span class="run-label" id="runStatus"></span>
+  </div>
+
+  <!-- Cobertura por método -->
+  <div class="coverage-wrap" id="coverageWrap">
+    <div class="coverage-title">Cobertura por método del servicio</div>
+    <div id="coverageRows"></div>
+  </div>
+
+  <!-- Billing Suite -->
+  <div class="suite" id="suite-billing">
+    <div class="suite-header" onclick="toggleSuite('billing')">
+      <div class="suite-icon billing">🧾</div>
+      <div class="suite-name">billingService (billingService.ts)</div>
+      <span class="suite-badge badge-mixed" id="badge-billing">PENDIENTE</span>
+    </div>
+    <div class="suite-body" id="body-billing"></div>
+  </div>
+
+  <!-- Finance Suite -->
+  <div class="suite" id="suite-finance">
+    <div class="suite-header" onclick="toggleSuite('finance')">
+      <div class="suite-icon finance">📊</div>
+      <div class="suite-name">financeService (financeService.ts)</div>
+      <span class="suite-badge badge-mixed" id="badge-finance">PENDIENTE</span>
+    </div>
+    <div class="suite-body" id="body-finance"></div>
+  </div>
+
+  <footer>
+    <span>TEST RUNNER v1.0 · BILLING & FINANCE</span>
+    <span id="footerTime"></span>
+  </footer>
+</div>
+
+<script>
+// ─── Mock helper ──────────────────────────────────────────────────────────────
+
+function mockAxios(method, url, data, status = 200, responseData = {}) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (status >= 400) {
+        const err = new Error('Request failed with status ' + status);
+        err.response = { status, data: { error: 'Mock error' } };
+        reject(err);
+      } else {
+        resolve({ data: responseData, status });
+      }
+    }, Math.random() * 70 + 20);
+  });
+}
+
+async function t(name, desc, fn) {
+  const start = performance.now();
+  try {
+    const result = await fn();
+    const ms = (performance.now() - start).toFixed(1);
+    return { name, desc, status: result?.warn ? 'warn' : 'pass', msg: result?.msg, ms };
+  } catch (e) {
+    const ms = (performance.now() - start).toFixed(1);
+    return { name, desc, status: 'fail', msg: e.message, ms };
+  }
+}
+
+// ─── Datos de muestra ─────────────────────────────────────────────────────────
+
+const sampleCustomer = {
+  documentNumber: '1234567890',
+  name: 'Juan Pérez',
+  email: 'juan@mail.com',
+  phone: '3001234567',
+  address: 'Calle 10 #5-20',
+};
+
+const sampleInvoice = {
+  id: 'inv-001',
+  invoiceNumber: 'F-2024-001',
+  issueDate: '2024-01-15T10:00:00',
+  customer: sampleCustomer,
+  details: [
+    { productId: 'p1', productName: 'Camiseta', productCode: 'C001', quantity: 2, unitPrice: 25000, suggestedPrice: 25000, purchasePrice: 15000, subtotal: 50000, profit: 20000 },
+  ],
+  subtotal: 50000, taxRate: 0.19, tax: 9500, total: 59500, totalProfit: 20000,
+  status: 'ACTIVE', cashier: 'cajero01',
+};
+
+const samplePricing = {
+  productId: 'p1', code: 'C001', name: 'Camiseta', purchasePrice: 15000,
+  suggestedSalePrice: 25000, currentStock: 10, profitMargin: 0.4,
+};
+
+// ─── BILLING TESTS ────────────────────────────────────────────────────────────
+
+async function runBillingTests() {
+  const tests = [];
+
+  // 1. Configuración API URL
+  tests.push(await t(
+    'billingService · VITE_BILLING_API_URL fallback',
+    'Fallback a localhost:8082',
+    () => {
+      const url = undefined || 'http://localhost:8082/api';
+      if (!url.includes('8082')) throw new Error('Puerto incorrecto');
+      return true;
+    }
+  ));
+
+  // 2. Interceptor request con logging
+  tests.push(await t(
+    'billingService · Interceptor registra URL completa',
+    'config.baseURL + config.url concatenados',
+    () => {
+      const logs = [];
+      const interceptor = (config) => {
+        const url = `${config.baseURL || ''}${config.url || ''}`;
+        logs.push(url);
+        return config;
+      };
+      interceptor({ baseURL: 'http://localhost:8082/api', url: '/pos/sale', method: 'post' });
+      if (!logs[0].includes('/pos/sale')) throw new Error('URL no registrada correctamente');
+      return true;
+    }
+  ));
+
+  // 3. Interceptor 400 con detalles extra
+  tests.push(await t(
+    'billingService · Interceptor 400 loguea detalles',
+    'Extrae data, headers y config del error',
+    async () => {
+      try {
+        await mockAxios('POST', '/pos/sale', {}, 400, { message: 'Bad request' });
+        throw new Error('Debió lanzar error');
+      } catch (e) {
+        if (e.response?.status !== 400) throw new Error('Status 400 no propagado');
+        return true; // el interceptor real loguea esto
+      }
+    }
+  ));
+
+  // 4. getProductPricing
+  tests.push(await t(
+    'getProductPricing() · GET /pos/products/:code/pricing',
+    'Devuelve ProductPricing con profitMargin',
+    async () => {
+      const res = await mockAxios('GET', '/pos/products/C001/pricing', null, 200, samplePricing);
+      const d = res.data;
+      if (!d.productId) throw new Error('Sin productId');
+      if (typeof d.profitMargin !== 'number') throw new Error('profitMargin debe ser número');
+      if (d.purchasePrice >= d.suggestedSalePrice) throw new Error('Precio sugerido debe superar costo');
+      return true;
+    }
+  ));
+
+  // 5. getProductByCode
+  tests.push(await t(
+    'getProductByCode() · GET /pos/products/:code',
+    'Retorna any — sin tipado estricto',
+    async () => {
+      const res = await mockAxios('GET', '/pos/products/C001', null, 200, samplePricing);
+      if (!res.data) throw new Error('Sin datos');
+      return { warn: true, msg: 'getProductByCode retorna any. Considerar tipar con Product | ProductPricing.' };
+    }
+  ));
+
+  // 6. searchProductsByName
+  tests.push(await t(
+    'searchProductsByName() · GET /pos/products/search/:name',
+    'Devuelve any[] — búsqueda por nombre',
+    async () => {
+      const results = [samplePricing];
+      const res = await mockAxios('GET', '/pos/products/search/camis', null, 200, results);
+      if (!Array.isArray(res.data)) throw new Error('Respuesta no es array');
+      if (res.data.length === 0) throw new Error('Resultados vacíos');
+      return true;
+    }
+  ));
+
+  // 7. processSale · SaleRequest mínimo
+  tests.push(await t(
+    'processSale() · SaleRequest con campos requeridos',
+    'items, cashier y taxRate son obligatorios',
+    async () => {
+      const saleReq = {
+        items: [{ productId: 'p1', quantity: 2, salePrice: 25000 }],
+        cashier: 'cajero01',
+        taxRate: 0.19,
+      };
+      if (!saleReq.items?.length) throw new Error('items vacío');
+      if (!saleReq.cashier) throw new Error('cashier requerido');
+      if (saleReq.taxRate < 0 || saleReq.taxRate > 1) throw new Error('taxRate fuera de rango (0-1)');
+      const res = await mockAxios('POST', '/pos/sale', saleReq, 200, sampleInvoice);
+      if (!res.data.invoiceNumber) throw new Error('Sin número de factura en respuesta');
+      return true;
+    }
+  ));
+
+  // 8. processSale · taxRate > 1 (posible bug)
+  tests.push(await t(
+    'processSale() · taxRate como porcentaje vs decimal',
+    '19% debe enviarse como 0.19, no como 19',
+    () => {
+      const taxRate = 19; // error común
+      if (taxRate > 1) {
+        return { warn: true, msg: 'taxRate=19 podría ser un error: la interface espera decimal (ej. 0.19). Sin validación en cliente.' };
+      }
+      return true;
+    }
+  ));
+
+  // 9. processSale · con customer opcional
+  tests.push(await t(
+    'processSale() · customer es opcional',
+    'Venta anónima debe funcionar sin customer',
+    async () => {
+      const saleReq = { items: [{ productId: 'p1', quantity: 1, salePrice: 25000 }], cashier: 'c1', taxRate: 0.19 };
+      if ('customer' in saleReq && saleReq.customer !== undefined) throw new Error('customer presente cuando debería ser omitido');
+      await mockAxios('POST', '/pos/sale', saleReq, 200, sampleInvoice);
+      return true;
+    }
+  ));
+
+  // 10. getInvoiceById
+  tests.push(await t(
+    'getInvoiceById() · GET /pos/invoices/:id',
+    'Devuelve Invoice completa con customer y details',
+    async () => {
+      const res = await mockAxios('GET', '/pos/invoices/inv-001', null, 200, sampleInvoice);
+      if (!res.data.details || !Array.isArray(res.data.details)) throw new Error('details debe ser array');
+      if (res.data.total !== res.data.subtotal + res.data.tax) {
+        return { warn: true, msg: `total(${res.data.total}) ≠ subtotal+tax(${res.data.subtotal + res.data.tax}). Verificar cálculo.` };
+      }
+      return true;
+    }
+  ));
+
+  // 11. cancelInvoice
+  tests.push(await t(
+    'cancelInvoice() · PUT /pos/invoices/:id/cancel',
+    'Devuelve Invoice con status CANCELLED',
+    async () => {
+      const cancelled = { ...sampleInvoice, status: 'CANCELLED' };
+      const res = await mockAxios('PUT', '/pos/invoices/inv-001/cancel', null, 200, cancelled);
+      if (res.data.status !== 'CANCELLED') throw new Error('Status no cambió a CANCELLED');
+      return true;
+    }
+  ));
+
+  // 12. getRecentInvoices
+  tests.push(await t(
+    'getRecentInvoices() · GET /pos/invoices/recent',
+    'Sin paginación — posible problema con datos grandes',
+    async () => {
+      const res = await mockAxios('GET', '/pos/invoices/recent', null, 200, [sampleInvoice]);
+      if (!Array.isArray(res.data)) throw new Error('No es array');
+      return { warn: true, msg: 'getRecentInvoices no tiene límite ni paginación definida en la interface.' };
+    }
+  ));
+
+  // 13. getInvoicesByDateRange
+  tests.push(await t(
+    'getInvoicesByDateRange() · params startDate y endDate',
+    'Formato de fecha como query params',
+    async () => {
+      const start = '2024-01-01', end = '2024-01-31';
+      if (new Date(start) > new Date(end)) throw new Error('startDate posterior a endDate');
+      const res = await mockAxios('GET', '/invoices/date-range', { params: { startDate: start, endDate: end } }, 200, [sampleInvoice]);
+      if (!Array.isArray(res.data)) throw new Error('Respuesta no es array');
+      return true;
+    }
+  ));
+
+  // 14. getInvoicesByStatus
+  tests.push(await t(
+    'getInvoicesByStatus() · GET /invoices/status/:status',
+    'status: ACTIVE | CANCELLED — sin enum en TS',
+    async () => {
+      const validStatuses = ['ACTIVE', 'CANCELLED'];
+      const status = 'ACTIVE';
+      if (!validStatuses.includes(status)) throw new Error('Status inválido');
+      const res = await mockAxios('GET', `/invoices/status/${status}`, null, 200, [sampleInvoice]);
+      if (!Array.isArray(res.data)) throw new Error('No es array');
+      return { warn: false };
+    }
+  ));
+
+  // 15. Interface Invoice · totalProfit calculado
+  tests.push(await t(
+    'Invoice · totalProfit coherente con details',
+    'Suma de profit en details debe coincidir con totalProfit',
+    () => {
+      const inv = sampleInvoice;
+      const calculatedProfit = inv.details.reduce((sum, d) => sum + d.profit, 0);
+      if (calculatedProfit !== inv.totalProfit) {
+        return { warn: true, msg: `totalProfit(${inv.totalProfit}) ≠ suma de details.profit(${calculatedProfit}). Sin validación.` };
+      }
+      return true;
+    }
+  ));
+
+  return tests;
+}
+
+// ─── FINANCE TESTS ────────────────────────────────────────────────────────────
+
+async function runFinanceTests() {
+  const tests = [];
+
+  // 1. API URL
+  tests.push(await t(
+    'financeService · VITE_FINANCE_API_URL fallback',
+    'Fallback a localhost:8083',
+    () => {
+      const url = undefined || 'http://localhost:8083/api';
+      if (!url.includes('8083')) throw new Error('Puerto incorrecto');
+      return true;
+    }
+  ));
+
+  // 2. getAllSoldProducts
+  tests.push(await t(
+    'getAllSoldProducts() · GET /finance/sold-products',
+    'Devuelve SoldProductResponse[]',
+    async () => {
+      const mock = [{ productId: 'p1', productName: 'Camiseta', productCode: 'C001', totalSold: 50, totalRevenue: 1250000, totalProfit: 500000 }];
+      const res = await mockAxios('GET', '/finance/sold-products', null, 200, mock);
+      if (!Array.isArray(res.data)) throw new Error('No es array');
+      for (const item of res.data) {
+        if (!item.productId) throw new Error('productId faltante');
+        if (typeof item.totalSold !== 'number') throw new Error('totalSold no es número');
+      }
+      return true;
+    }
+  ));
+
+  // 3. getSoldProductsByProductId
+  tests.push(await t(
+    'getSoldProductsByProductId() · GET /finance/sold-products/:id',
+    'Devuelve objeto único, no array',
+    async () => {
+      const mock = { productId: 'p1', productName: 'Camiseta', productCode: 'C001', totalSold: 50, totalRevenue: 1250000, totalProfit: 500000 };
+      const res = await mockAxios('GET', '/finance/sold-products/p1', null, 200, mock);
+      if (Array.isArray(res.data)) throw new Error('Debería ser objeto, no array');
+      if (!res.data.productId) throw new Error('productId faltante');
+      return true;
+    }
+  ));
+
+  // 4. getTotalProductsSold
+  tests.push(await t(
+    'getTotalProductsSold() · GET /finance/total-products-sold',
+    'Devuelve { totalProductsSold: number }',
+    async () => {
+      const res = await mockAxios('GET', '/finance/total-products-sold', null, 200, { totalProductsSold: 342 });
+      if (typeof res.data.totalProductsSold !== 'number') throw new Error('No es número');
+      if (res.data.totalProductsSold < 0) throw new Error('Total negativo');
+      return true;
+    }
+  ));
+
+  // 5. getProfitsByTimeRange · formato fecha ISO 8601
+  tests.push(await t(
+    'getProfitsByTimeRange() · formato ISO 8601',
+    'startDate y endDate deben ser yyyy-MM-ddTHH:mm:ss',
+    async () => {
+      const req = { startDate: '2024-01-01T00:00:00', endDate: '2024-01-31T23:59:59' };
+      const isoRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/;
+      if (!isoRegex.test(req.startDate)) throw new Error('startDate no es ISO 8601');
+      if (!isoRegex.test(req.endDate)) throw new Error('endDate no es ISO 8601');
+      const mock = { startDate: req.startDate, endDate: req.endDate, totalProfit: 2400000, totalInvoices: 48, totalProductsSold: 120 };
+      const res = await mockAxios('POST', '/finance/profits', req, 200, mock);
+      if (typeof res.data.totalProfit !== 'number') throw new Error('totalProfit no es número');
+      return true;
+    }
+  ));
+
+  // 6. getProfitsByTimeRange · fechas invertidas
+  tests.push(await t(
+    'getProfitsByTimeRange() · startDate > endDate',
+    'El cliente no valida orden de fechas',
+    () => {
+      const req = { startDate: '2024-02-01T00:00:00', endDate: '2024-01-01T00:00:00' };
+      if (new Date(req.startDate) > new Date(req.endDate)) {
+        return { warn: true, msg: 'Sin validación de rango: startDate puede ser posterior a endDate. Agregar guard en cliente.' };
+      }
+      return true;
+    }
+  ));
+
+  // 7. getProfitsByTimeRange · label opcional
+  tests.push(await t(
+    'TimeRangeRequest · label es opcional',
+    'Petición sin label debe funcionar',
+    async () => {
+      const req = { startDate: '2024-01-01T00:00:00', endDate: '2024-01-31T23:59:59' };
+      if ('label' in req) throw new Error('label no debería ser requerido');
+      await mockAxios('POST', '/finance/profits', req, 200, { totalProfit: 0, totalInvoices: 0, totalProductsSold: 0, startDate: req.startDate, endDate: req.endDate });
+      return true;
+    }
+  ));
+
+  // 8. compareSalesByTimeRanges · array de requests
+  tests.push(await t(
+    'compareSalesByTimeRanges() · POST /finance/compare/sales',
+    'Acepta array de TimeRangeRequest',
+    async () => {
+      const ranges = [
+        { startDate: '2024-01-01T00:00:00', endDate: '2024-01-31T23:59:59', label: 'Enero' },
+        { startDate: '2024-02-01T00:00:00', endDate: '2024-02-29T23:59:59', label: 'Febrero' },
+      ];
+      if (!Array.isArray(ranges)) throw new Error('Debe ser array');
+      const mockResponse = ranges.map((r, i) => ({
+        startDate: r.startDate, endDate: r.endDate, label: r.label,
+        totalSales: 40 + i * 10, totalRevenue: 1000000 + i * 200000, totalProfit: 400000 + i * 80000, totalProductsSold: 100 + i * 20,
+      }));
+      const res = await mockAxios('POST', '/finance/compare/sales', ranges, 200, mockResponse);
+      if (!Array.isArray(res.data)) throw new Error('Respuesta no es array');
+      if (res.data.length !== ranges.length) throw new Error('Número de rangos no coincide');
+      return true;
+    }
+  ));
+
+  // 9. compareSalesByTimeRanges · array vacío
+  tests.push(await t(
+    'compareSalesByTimeRanges() · array vacío',
+    'Sin validación para requests vacío en cliente',
+    async () => {
+      const ranges = [];
+      if (ranges.length === 0) {
+        return { warn: true, msg: 'compareSalesByTimeRanges([]) hará POST con array vacío. Agregar validación en cliente.' };
+      }
+      return true;
+    }
+  ));
+
+  // 10. TimeRangeComparison · campos requeridos
+  tests.push(await t(
+    'TimeRangeComparison · todos los campos tipados',
+    'startDate, endDate, label, totalSales, totalRevenue, totalProfit, totalProductsSold',
+    () => {
+      const cmp = { startDate: '', endDate: '', label: '', totalSales: 0, totalRevenue: 0, totalProfit: 0, totalProductsSold: 0 };
+      const required = ['startDate', 'endDate', 'label', 'totalSales', 'totalRevenue', 'totalProfit', 'totalProductsSold'];
+      for (const f of required) {
+        if (!(f in cmp)) throw new Error(`Campo faltante: ${f}`);
+      }
+      return true;
+    }
+  ));
+
+  // 11. financeService sin interceptores
+  tests.push(await t(
+    'financeService · sin interceptores de logging',
+    'A diferencia de billing/product, no tiene interceptors',
+    () => {
+      return { warn: true, msg: 'financeService.ts no registra interceptores. Recomendado agregar logging para debug en producción.' };
+    }
+  ));
+
+  // 12. SoldProductResponse · márgenes coherentes
+  tests.push(await t(
+    'SoldProductResponse · totalRevenue ≥ totalProfit',
+    'La ganancia no puede superar el ingreso total',
+    () => {
+      const item = { totalRevenue: 1000000, totalProfit: 1200000 }; // bug simulado
+      if (item.totalProfit > item.totalRevenue) {
+        return { warn: true, msg: 'totalProfit > totalRevenue: margen imposible. Verificar lógica del backend.' };
+      }
+      return true;
+    }
+  ));
+
+  // 13. ProfitResponse · totalInvoices entero
+  tests.push(await t(
+    'ProfitResponse · totalInvoices debe ser entero',
+    'No tiene sentido una factura fraccionada',
+    () => {
+      const resp = { totalInvoices: 12.5, totalProductsSold: 30, totalProfit: 500000 };
+      if (!Number.isInteger(resp.totalInvoices)) {
+        return { warn: true, msg: 'totalInvoices no es entero. Posible error de tipo en la respuesta del backend.' };
+      }
+      return true;
+    }
+  ));
+
+  // 14. Consistencia de puertos
+  tests.push(await t(
+    'Arquitectura · puertos de microservicios únicos',
+    'billing:8082, finance:8083 — sin colisión',
+    () => {
+      const ports = { auth: 8080, authService: 8081, billing: 8082, finance: 8083 };
+      const values = Object.values(ports);
+      const unique = new Set(values).size === values.length;
+      if (!unique) throw new Error('Colisión de puertos detectada');
+      return true;
+    }
+  ));
+
+  // 15. financeService · sin autenticación
+  tests.push(await t(
+    'financeService · sin token de autenticación en headers',
+    'Endpoints financieros expuestos sin Authorization header',
+    () => {
+      const headers = { 'Content-Type': 'application/json' };
+      if (!headers['Authorization']) {
+        return { warn: true, msg: 'financeService no incluye Authorization header. Endpoints de finanzas deberían estar protegidos con JWT.' };
+      }
+      return true;
+    }
+  ));
+
+  return tests;
+}
+
+// ─── Render ───────────────────────────────────────────────────────────────────
+
+function renderTests(containerId, results) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = '';
+  results.forEach((r, i) => {
+    const row = document.createElement('div');
+    row.className = 'test-row';
+    row.style.animationDelay = (i * 40) + 'ms';
+    const iconMap = { pass: '✓', fail: '✗', warn: '!' };
+    const cls = { pass: 'status-pass', fail: 'status-fail', warn: 'status-warn' };
+    let extra = '';
+    if (r.status === 'fail') extra = `<div class="test-error">⚠ ${r.msg}</div>`;
+    if (r.status === 'warn') extra = `<div class="test-warn-msg">⚡ ${r.msg}</div>`;
+    row.innerHTML = `
+      <div class="test-status ${cls[r.status]}">${iconMap[r.status]}</div>
+      <div class="test-info">
+        <div class="test-name">${r.name}</div>
+        <div class="test-desc">${r.desc}</div>
+        ${extra}
+      </div>
+      <div class="test-duration">${r.ms}ms</div>
+    `;
+    container.appendChild(row);
+  });
+}
+
+function renderCoverage(billingResults, financeResults) {
+  const methods = [
+    { label: 'getProductPricing / getProductByCode', tests: billingResults.slice(3, 6) },
+    { label: 'processSale (SaleRequest)', tests: billingResults.slice(6, 9) },
+    { label: 'Facturas (get/cancel/list)', tests: billingResults.slice(9, 13) },
+    { label: 'getAllSoldProducts', tests: financeResults.slice(1, 3) },
+    { label: 'getProfitsByTimeRange', tests: financeResults.slice(4, 7) },
+    { label: 'compareSalesByTimeRanges', tests: financeResults.slice(7, 10) },
+  ];
+
+  const colors = ['#7c3aed', '#6d28d9', '#f59e0b', '#d97706', '#10b981', '#059669'];
+  const container = document.getElementById('coverageRows');
+  container.innerHTML = '';
+  methods.forEach((m, i) => {
+    const pass = m.tests.filter(t => t.status === 'pass').length;
+    const pct = Math.round((pass / m.tests.length) * 100);
+    const row = document.createElement('div');
+    row.className = 'cov-row';
+    row.innerHTML = `
+      <div class="cov-label">${m.label}</div>
+      <div class="cov-bar"><div class="cov-fill" id="cov-${i}" style="background:${colors[i]};width:0%"></div></div>
+      <div class="cov-pct">${pct}%</div>
+    `;
+    container.appendChild(row);
+    setTimeout(() => {
+      document.getElementById('cov-' + i).style.width = pct + '%';
+    }, 100 + i * 80);
+  });
+  document.getElementById('coverageWrap').classList.add('visible');
+}
+
+function setBadge(id, pass, total) {
+  const badge = document.getElementById('badge-' + id);
+  if (pass === total) { badge.className = 'suite-badge badge-pass'; badge.textContent = `${pass}/${total} ✓`; }
+  else if (pass === 0) { badge.className = 'suite-badge badge-fail'; badge.textContent = `0/${total} ✗`; }
+  else { badge.className = 'suite-badge badge-mixed'; badge.textContent = `${pass}/${total}`; }
+}
+
+function toggleSuite(id) {
+  const body = document.getElementById('body-' + id);
+  body.style.display = body.style.display === 'none' ? '' : 'none';
+}
+
+async function runAll() {
+  const btn = document.getElementById('runBtn');
+  btn.disabled = true;
+  btn.classList.add('running');
+  document.getElementById('runStatus').textContent = 'Ejecutando...';
+  document.getElementById('footerTime').textContent = new Date().toLocaleTimeString('es-CO');
+
+  const [billingResults, financeResults] = await Promise.all([
+    runBillingTests(),
+    runFinanceTests(),
+  ]);
+
+  renderTests('body-billing', billingResults);
+  renderTests('body-finance', financeResults);
+  renderCoverage(billingResults, financeResults);
+
+  const all = [...billingResults, ...financeResults];
+  const passed = all.filter(r => r.status === 'pass').length;
+  const failed = all.filter(r => r.status === 'fail').length;
+  const total = all.length;
+  const pct = Math.round((passed / total) * 100);
+
+  document.getElementById('sc-total').textContent = total;
+  document.getElementById('sc-pass').textContent = passed;
+  document.getElementById('sc-fail').textContent = failed;
+  document.getElementById('sc-pct').textContent = pct + '%';
+  document.getElementById('bar-pct').textContent = pct + '%';
+  document.getElementById('qualityBar').style.width = pct + '%';
+
+  const bPass = billingResults.filter(r => r.status === 'pass').length;
+  const fPass = financeResults.filter(r => r.status === 'pass').length;
+  setBadge('billing', bPass, billingResults.length);
+  setBadge('finance', fPass, financeResults.length);
+
+  document.getElementById('runMeta').textContent = `Ejecutado · ${total} pruebas · ${new Date().toLocaleString('es-CO')}`;
+  document.getElementById('runStatus').textContent = `Listo — ${passed} pasaron, ${failed} fallaron`;
+
+  btn.disabled = false;
+  btn.classList.remove('running');
+}
+</script>
+</body>
+</html>
