@@ -9,6 +9,10 @@
   "buildCommand": "npm run build:web",
   "routes": [
     {
+      "src": "^/(.*\\.(css|js|mjs|json|png|jpg|jpeg|svg|ico|txt|map|woff|woff2|ttf|eot))$",
+      "dest": "/$1"
+    },
+    {
       "src": "/(.*)",
       "dest": "/index.html"
     }
