@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const API_BASE_URL = import.meta.env.VITE_FINANCE_API_URL || 'https://finance-service-2st9.onrender.com/api'
+const API_BASE_URL = import.meta.env.VITE_FINANCE_API_URL || 'http://localhost:8083/api'
 
 const api = axios.create({
   baseURL: API_BASE_URL,
