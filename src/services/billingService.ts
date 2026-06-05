@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const API_BASE_URL = import.meta.env.VITE_BILLING_API_URL || 'https://back-catherino-billing-service.onrender.com es el billing service/api'
+const API_BASE_URL = import.meta.env.VITE_BILLING_API_URL || 'https://back-catherino-billing-service.onrender.com/api'
 
 console.log('Billing API URL:', API_BASE_URL)
 
