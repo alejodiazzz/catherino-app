@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const API_BASE_URL = import.meta.env.VITE_PRODUCTS_API_URL || 'http://localhost:8081/api/products'
+const API_BASE_URL = import.meta.env.VITE_PRODUCTS_API_URL || 'https://back-catherino.onrender.com/api/products'
 
 console.log('Products API URL:', API_BASE_URL)
 
